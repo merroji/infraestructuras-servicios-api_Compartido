@@ -14,7 +14,7 @@ app.get("/api/presupuestos", (req, res) => {
 });
 
 // Resumen económico actualizado.
-app.get("/api/presupuestos/resumen", (req, res) => {
+app.get("/api/presupuestos/resumen", (_req, res) => {
 
 });
 
@@ -35,7 +35,7 @@ app.put("/api/presupuestos/:id", (req, res) => {
 
 // Actualización parcial, 200 OK o 404.
 app.patch("/api/presupuestos/:id", (req, res) => {
-
+    modificar()
 });
 
 // 204 No Content o 404.
