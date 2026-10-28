@@ -1,0 +1,3 @@
+Revisa el **código de `src`** y crea **`public/openapi.yaml`** con una especificación OpenAPI 3.0.3 para esta API Express. Analiza las rutas y los archivos de `src` que usan para determinar los **parámetros, cuerpos, modelos y respuestas.**
+
+Documenta solo lo que pueda deducirse del código. En `servers`, **usa `url: /`** para que Swagger envíe **las peticiones al mismo origen** donde se abre la documentación. Al final, enumera los archivos de `src` que revisaste y cualquier dato que no pudiste determinar.
