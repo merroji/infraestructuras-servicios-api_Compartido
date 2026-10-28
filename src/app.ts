@@ -1,4 +1,6 @@
 import express from "express";
+import { buscarPresupuesto } from "./services/presupuestos.service.js";
+import { presupuestos } from "./data/datos.js";
 const app = express();
 const PORT = 3000;
 
@@ -20,7 +22,15 @@ app.get("/api/presupuestos/resumen", (req, res) => {
 
 // Presupuesto solicitado o 404.
 app.get("/api/presupuestos/:id", (req, res) => {
-
+    const id = Number(req.params.id);
+    buscarPresupuesto(id)
+    
+    if (!presupuestos) {
+        res.status(404).json({ mensaje: "Presupuestos no encontrado" });
+        return;
+    }
+    res.status(200).json(presupuestos);
+    
 });
 
 // Nuevo presupuesto, 201 Created y cabecera Location.
