@@ -1,0 +1,7 @@
+{
+  "name": "Backend",
+  "dockerComposeFile": "compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "npm install"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "backend-template",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/app.ts"
+  },
+  "dependencies": {
+    "express": "^5",
+    "mysql2": "^3"
+  },
+  "devDependencies": {
+    "@types/express": "^5",
+    "@types/node": "^24",
+    "tsx": "^4",
+    "typescript": "5.9.3"
+  }
+}
