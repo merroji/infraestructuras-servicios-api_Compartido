@@ -1,4 +1,4 @@
 import { Presupuesto } from "../models/presupuesto.js";
 
-const presupuestos: Presupuesto[] = [];
-let siguienteIdentificador: Number = presupuestos.length + 1;
+export const presupuestos: Presupuesto[] = [];
+export let siguienteIdentificador: Number = presupuestos.length + 1;

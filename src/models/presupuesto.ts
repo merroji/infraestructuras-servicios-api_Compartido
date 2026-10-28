@@ -1,4 +1,4 @@
-interface Presupuesto {
+export interface Presupuesto {
     id: number,
     cliente: string,
     material: string,
@@ -8,5 +8,5 @@ interface Presupuesto {
     canal: string
 }
 
-type DatosParaPresupuesto = Omit<Presupuesto, "id"| "importe" | "canal">;
-type CambiosPresupuesto = Partial<DatosParaPresupuesto>;
+export type DatosParaPresupuesto = Omit<Presupuesto, "id"| "importe" | "canal">;
+export type CambiosPresupuesto = Partial<DatosParaPresupuesto>;
