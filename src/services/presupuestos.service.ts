@@ -1,8 +1,21 @@
-import { presupuestos } from '../data/datos.js';
-import { Presupuesto } from '../models/presupuesto.js';
+import { presupuestos, contador } from '../data/datos.js';
+import { Presupuesto, DatosParaPresupuesto, CambiosPresupuesto } from '../models/presupuesto.js';
 
-export function crearPresupuesto(): Presupuesto {
-    return new Presupuesto();
+export function crearPresupuesto(datosPresupuesto: DatosParaPresupuesto): Presupuesto {
+    
+    const nuevoPresupuesto: Presupuesto = {
+        id: contador.siguienteIdentificador++,
+        cliente: datosPresupuesto.cliente,
+        material: datosPresupuesto.material,
+        gramos: datosPresupuesto.gramos,
+        urgente: datosPresupuesto.urgente,
+        importe: 0,
+        canal: ""
+    }
+
+    presupuestos.push(nuevoPresupuesto);
+    
+    return nuevoPresupuesto;
 }
 
 export function listarPresupuesto(): Presupuesto[] {
