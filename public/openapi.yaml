@@ -131,6 +131,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DatosParaPresupuesto'
+            example:
+              cliente: Empresa A
+              material: resina
+              gramos: 300
+              urgente: true
       responses:
         '200':
           description: Presupuesto actualizado
@@ -138,6 +143,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Presupuesto'
+              example:
+                id: 1
+                canal: Web
+                cliente: Empresa A
+                material: resina
+                gramos: 300
+                urgente: true
+                importe: 90
         '400':
           description: Cuerpo no válido para actualizar un presupuesto
           content:
@@ -161,9 +174,9 @@ paths:
       summary: Actualizar parcialmente un presupuesto
       description: >-
         Acepta cualquier subconjunto de los campos editables. El código no valida
-        sus tipos o valores. La propiedad data de la respuesta exitosa contiene
-        el presupuesto devuelto por la operación; el importe almacenado se
-        recalcula al actualizar.
+        sus tipos o valores. Los campos no enviados se conservan y el importe se
+        recalcula. La propiedad data de la respuesta exitosa contiene el
+        presupuesto actualizado, con el importe ya recalculado.
       requestBody:
         required: true
         content:
