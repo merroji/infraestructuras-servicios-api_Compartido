@@ -18,7 +18,7 @@ export function crearPresupuesto(canal: string, datosPresupuesto: DatosParaPresu
         material: datosPresupuesto.material,
         gramos: datosPresupuesto.gramos,
         urgente: datosPresupuesto.urgente,
-        importe: 0,
+        importe: calcularImporte(datosPresupuesto),
         canal: canal
     }
 
