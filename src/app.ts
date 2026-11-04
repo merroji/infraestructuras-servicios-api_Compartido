@@ -1,4 +1,6 @@
 import express from "express";
+import { modificar } from "./services/presupuestos.service.js";
+import { presupuestos } from "./data/datos.js";
 const app = express();
 const PORT = 3000;
 
@@ -35,7 +37,15 @@ app.put("/api/presupuestos/:id", (req, res) => {
 
 // Actualización parcial, 200 OK o 404.
 app.patch("/api/presupuestos/:id", (req, res) => {
-    modificar()
+    const id = Number(req.params.id);
+    const data = req.body;
+    const presupuestoModificado = modificar(id, data);
+    const statusResponse = presupuestoModificado ? 200 : 404;
+    return res.status(statusResponse).json({
+        "message": presupuestoModificado ? "Presupuesto actualizado" : "Presupuesto no encontrado",
+        "data": presupuestoModificado,
+        "array": presupuestos
+    });
 });
 
 // 204 No Content o 404.
