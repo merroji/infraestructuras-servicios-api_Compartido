@@ -1,7 +1,8 @@
 import express from "express";
-import { crearPresupuesto, listarPresupuesto, eliminarPresupuesto, actualizarPresupuesto, buscarPresupuesto, esMaterialValido } from "./services/presupuestos.service.js";
-import { DatosParaPresupuesto } from "./models/presupuesto.js";
+import { crearPresupuesto, listarPresupuesto, eliminarPresupuesto, actualizarPresupuesto, buscarPresupuesto, esMaterialValido, modificar, resumen } from "./services/presupuestos.service.js";
 import { presupuestos } from "./data/datos.js";
+import { DatosParaPresupuesto, CambiosPresupuesto } from "./models/presupuesto.js";
+
 const app = express();
 const PORT = 3000;
 
@@ -22,8 +23,9 @@ app.get("/api/presupuestos", (req, res) => {
 });
 
 // Resumen económico actualizado.
-app.get("/api/presupuestos/resumen", (req, res) => {
-
+app.get("/api/presupuestos/resumen", (_req, res) => {
+    const objetoResumen = resumen();
+    return res.status(200).json(objetoResumen)
 });
 
 // Presupuesto solicitado o 404.
@@ -83,7 +85,14 @@ app.put("/api/presupuestos/:id", (req, res) => {
 
 // Actualización parcial, 200 OK o 404.
 app.patch("/api/presupuestos/:id", (req, res) => {
-
+    const id = Number(req.params.id);
+    const data: Object = req.body;
+    const presupuestoModificado = modificar(id, data);
+    const statusResponse = presupuestoModificado ? 200 : 404;
+    return res.status(statusResponse).json({
+        "message": presupuestoModificado ? "Presupuesto actualizado" : "Presupuesto no encontrado",
+        "data": presupuestoModificado,
+    });
 });
 
 // 204 No Content o 404.

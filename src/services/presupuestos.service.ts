@@ -1,5 +1,7 @@
-import { presupuestos, contador } from '../data/datos.js';
+import { presupuestos } from '../data/datos.js';
 import { Presupuesto, DatosParaPresupuesto, CambiosPresupuesto } from '../models/presupuesto.js';
+
+let siguienteIdentificador: number = presupuestos.length+1;
 
 // Tarifas (Reglas de negocio).
 export const PRECIO_POR_GRAMO: Record<string, number> = {
@@ -13,7 +15,7 @@ export const RECARGO_URGENTE = 0.20; // 20 % si es urgente
 export function crearPresupuesto(canal: string, datosPresupuesto: DatosParaPresupuesto): Presupuesto {
     
     const nuevoPresupuesto: Presupuesto = {
-        id: contador.siguienteIdentificador++,
+        id: siguienteIdentificador++,
         cliente: datosPresupuesto.cliente,
         material: datosPresupuesto.material,
         gramos: datosPresupuesto.gramos,
@@ -104,4 +106,38 @@ export function actualizarPresupuesto(
 
 export function buscarPresupuesto(id: number): Presupuesto | undefined {
     return presupuestos.find(a => a.id === id);
+}
+
+export function resumen(): Object {
+    const totalPresupuestos: Number = presupuestos.length;
+    const importeAcumulado: Number = presupuestos.reduce((total, presupuesto) => presupuesto.importe + total, 0);
+    const presupuestosUrgentes: Number = presupuestos.reduce((total, presupuesto) => presupuesto.urgente ? total+1 : total, 0);
+    return {
+        "totalPresupuestos": totalPresupuestos,
+        "importeAcumulado": importeAcumulado,
+        "presupuestosUrgentes": presupuestosUrgentes
+    }
+}
+
+export function modificar(id: number, data: CambiosPresupuesto): Presupuesto|undefined {
+    const indice = presupuestos.findIndex(presupuesto => presupuesto.id === id);
+    const {cliente, material, gramos, urgente} = data
+
+    if (indice === -1) return undefined;
+
+    // Aqui se deberian realizar las comprobaciones de los datos
+
+    const presupuestoModificado: Presupuesto = {
+        ...presupuestos[indice],
+        cliente: cliente ?? presupuestos[indice].cliente,
+        material: material ?? presupuestos[indice].material,
+        gramos: gramos ?? presupuestos[indice].gramos,
+        urgente: urgente ?? presupuestos[indice].urgente,
+    };
+    presupuestos[indice] = {
+        ...presupuestoModificado,
+        importe: calcularImporte(presupuestoModificado)
+    };
+
+    return presupuestoModificado;
 }
