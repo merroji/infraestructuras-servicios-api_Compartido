@@ -6,10 +6,11 @@ import { DatosParaPresupuesto, CambiosPresupuesto } from "./models/presupuesto.j
 const app = express();
 const PORT = 3000;
 
+app.use(express.static("public"))
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("Hola mundo");
+app.get("/", (_req, res) => {
+    res.redirect("/index.html");
 });
 
 // Listado, con filtros opcionales material y urgente.

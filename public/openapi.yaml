@@ -1,0 +1,301 @@
+openapi: 3.0.3
+info:
+  title: API de presupuestos
+  version: 1.0.0
+  description: API Express para consultar y gestionar presupuestos.
+servers:
+  - url: /
+    description: Mismo origen que la documentación
+tags:
+  - name: Presupuestos
+    description: Operaciones sobre presupuestos
+paths:
+  /api/presupuestos:
+    get:
+      tags:
+        - Presupuestos
+      operationId: listarPresupuestos
+      summary: Listar presupuestos
+      description: Los filtros, si se proporcionan, se aplican conjuntamente.
+      parameters:
+        - name: material
+          in: query
+          required: false
+          description: Filtra por material, sin distinguir mayúsculas de minúsculas.
+          schema:
+            type: string
+        - name: urgente
+          in: query
+          required: false
+          description: >-
+            Si el valor es exactamente "true", filtra los presupuestos urgentes;
+            cualquier otro valor proporcionado filtra los no urgentes.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de presupuestos que coincide con los filtros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Presupuesto'
+    post:
+      tags:
+        - Presupuestos
+      operationId: crearPresupuesto
+      summary: Crear presupuesto
+      description: El código no valida en tiempo de ejecución los campos del cuerpo.
+      parameters:
+        - name: X-Canal
+          in: header
+          required: false
+          description: Canal asociado al presupuesto; si se omite, se usa "desconocido".
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatosParaPresupuesto'
+      responses:
+        '201':
+          description: Presupuesto creado
+          headers:
+            Location:
+              description: Ruta del presupuesto creado
+              schema:
+                type: string
+                example: /api/presupuestos/1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Presupuesto'
+
+  /api/presupuestos/resumen:
+    get:
+      tags:
+        - Presupuestos
+      operationId: obtenerResumen
+      summary: Obtener resumen económico
+      responses:
+        '200':
+          description: Recuento y totales actuales de los presupuestos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resumen'
+
+  /api/presupuestos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador convertido a número por el servidor.
+        schema:
+          type: integer
+    get:
+      tags:
+        - Presupuestos
+      operationId: obtenerPresupuesto
+      summary: Obtener un presupuesto
+      responses:
+        '200':
+          description: Presupuesto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Presupuesto'
+        '404':
+          description: No existe un presupuesto con ese identificador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMensaje'
+              example:
+                mensaje: Presupuesto no encontrado
+    put:
+      tags:
+        - Presupuestos
+      operationId: reemplazarPresupuesto
+      summary: Actualizar todos los campos editables
+      description: >-
+        Reemplaza cliente, material, gramos y urgente; se conservan id y canal.
+        cliente no puede estar vacío, material debe ser pla o resina, gramos
+        debe ser un número finito mayor que cero y urgente debe ser booleano.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatosParaPresupuesto'
+      responses:
+        '200':
+          description: Presupuesto actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Presupuesto'
+        '400':
+          description: Cuerpo no válido para actualizar un presupuesto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMensaje'
+              example:
+                mensaje: Datos de presupuesto no válidos
+        '404':
+          description: No existe un presupuesto con ese identificador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMensaje'
+              example:
+                mensaje: Presupuesto no encontrado
+    patch:
+      tags:
+        - Presupuestos
+      operationId: modificarPresupuesto
+      summary: Actualizar parcialmente un presupuesto
+      description: >-
+        Acepta cualquier subconjunto de los campos editables. El código no valida
+        sus tipos o valores. La propiedad data de la respuesta exitosa contiene
+        el presupuesto devuelto por la operación; el importe almacenado se
+        recalcula al actualizar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiosPresupuesto'
+      responses:
+        '200':
+          description: Presupuesto modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaModificacion'
+        '404':
+          description: No existe un presupuesto con ese identificador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaModificacionNoEncontrado'
+    delete:
+      tags:
+        - Presupuestos
+      operationId: eliminarPresupuesto
+      summary: Eliminar un presupuesto
+      responses:
+        '204':
+          description: Presupuesto eliminado; no se devuelve cuerpo
+        '404':
+          description: No existe un presupuesto con ese identificador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMensaje'
+              example:
+                mensaje: Presupuesto no ha sido encontrado
+
+components:
+  schemas:
+    Presupuesto:
+      type: object
+      required:
+        - id
+        - cliente
+        - material
+        - gramos
+        - urgente
+        - importe
+        - canal
+      properties:
+        id:
+          type: integer
+        cliente:
+          type: string
+        material:
+          type: string
+          description: >-
+            El servicio reconoce pla y resina para calcular el importe;
+            PUT rechaza materiales fuera de esos valores.
+        gramos:
+          type: number
+        urgente:
+          type: boolean
+        importe:
+          type: number
+          description: Calculado por el servidor.
+        canal:
+          type: string
+          description: Valor de la cabecera X-Canal o "desconocido" si se omite al crear.
+    DatosParaPresupuesto:
+      type: object
+      required:
+        - cliente
+        - material
+        - gramos
+        - urgente
+      properties:
+        cliente:
+          type: string
+        material:
+          type: string
+        gramos:
+          type: number
+        urgente:
+          type: boolean
+    CambiosPresupuesto:
+      type: object
+      description: Subconjunto opcional de campos editables del presupuesto.
+      properties:
+        cliente:
+          type: string
+        material:
+          type: string
+        gramos:
+          type: number
+        urgente:
+          type: boolean
+    Resumen:
+      type: object
+      required:
+        - totalPresupuestos
+        - importeAcumulado
+        - presupuestosUrgentes
+      properties:
+        totalPresupuestos:
+          type: number
+        importeAcumulado:
+          type: number
+        presupuestosUrgentes:
+          type: number
+    ErrorMensaje:
+      type: object
+      required:
+        - mensaje
+      properties:
+        mensaje:
+          type: string
+    RespuestaModificacion:
+      type: object
+      required:
+        - message
+        - data
+      properties:
+        message:
+          type: string
+          example: Presupuesto actualizado
+        data:
+          $ref: '#/components/schemas/Presupuesto'
+    RespuestaModificacionNoEncontrado:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Presupuesto no encontrado
