@@ -1,5 +1,7 @@
-import { presupuestos, contador } from '../data/datos.js';
+import { presupuestos } from '../data/datos.js';
 import { Presupuesto, DatosParaPresupuesto, CambiosPresupuesto } from '../models/presupuesto.js';
+
+let siguienteIdentificador: number = presupuestos.length+1;
 
 // Tarifas (Reglas de negocio).
 export const PRECIO_POR_GRAMO: Record<string, number> = {
@@ -13,7 +15,7 @@ export const RECARGO_URGENTE = 0.20; // 20 % si es urgente
 export function crearPresupuesto(canal: string, datosPresupuesto: DatosParaPresupuesto): Presupuesto {
     
     const nuevoPresupuesto: Presupuesto = {
-        id: contador.siguienteIdentificador++,
+        id: siguienteIdentificador++,
         cliente: datosPresupuesto.cliente,
         material: datosPresupuesto.material,
         gramos: datosPresupuesto.gramos,
@@ -130,9 +132,12 @@ export function modificar(id: number, data: CambiosPresupuesto): Presupuesto|und
         cliente: cliente ?? presupuestos[indice].cliente,
         material: material ?? presupuestos[indice].material,
         gramos: gramos ?? presupuestos[indice].gramos,
-        urgente: urgente ?? presupuestos[indice].urgente
+        urgente: urgente ?? presupuestos[indice].urgente,
     };
-    presupuestos[indice] = presupuestoModificado;
+    presupuestos[indice] = {
+        ...presupuestoModificado,
+        importe: calcularImporte(presupuestoModificado)
+    };
 
     return presupuestoModificado;
 }
