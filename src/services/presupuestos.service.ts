@@ -134,10 +134,9 @@ export function modificar(id: number, data: CambiosPresupuesto): Presupuesto|und
         gramos: gramos ?? presupuestos[indice].gramos,
         urgente: urgente ?? presupuestos[indice].urgente,
     };
-    presupuestos[indice] = {
-        ...presupuestoModificado,
-        importe: calcularImporte(presupuestoModificado)
-    };
+    // Se recalcula el importe en el mismo objeto que se guarda y se devuelve.
+    presupuestoModificado.importe = calcularImporte(presupuestoModificado);
+    presupuestos[indice] = presupuestoModificado;
 
     return presupuestoModificado;
 }
