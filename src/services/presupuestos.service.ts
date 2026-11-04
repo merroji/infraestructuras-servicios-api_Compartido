@@ -52,3 +52,56 @@ export function eliminarPresupuesto(id: number): Presupuesto | undefined{
     const [presupuestoEliminado] = presupuestos.splice(presupuertoIndice, 1)
     return presupuestoEliminado;
 }
+export function esMaterialValido(material: string): boolean {
+    return material.trim().toLowerCase() in PRECIO_POR_GRAMO;
+}
+
+// Función reutilizable del cálculo del importe (POST, PUT y PATCH).
+// Coste del material -> descuento -> recargo por urgencia -> redondeo.
+export function calcularImporte(
+    { material, gramos, urgente }: Pick<DatosParaPresupuesto, "material" | "gramos" | "urgente">
+): number {
+    const precio = PRECIO_POR_GRAMO[material.trim().toLowerCase()] ?? 0;
+    let importe = gramos * precio;
+    if (gramos >= GRAMOS_PARA_DESCUENTO) {
+        importe *= 1 - DESCUENTO;
+    }
+    if (urgente) {
+        importe *= 1 + RECARGO_URGENTE;
+    }
+    // Redondeo a céntimos para evitar errores.
+    return Math.round(importe * 100) / 100;
+}
+
+export function actualizarPresupuesto(
+    id: number,
+    datos: DatosParaPresupuesto
+): Presupuesto | undefined {
+    const indice = presupuestos.findIndex(p => p.id === id);
+
+    if (indice === -1) {
+        return undefined;
+    }
+
+    const actual = presupuestos[indice];
+
+    // Se sustituyen todos los campos editables
+    // se conservan id y canal,
+    // y el importe se recalcula.
+    const actualizado: Presupuesto = {
+        id: actual.id,
+        canal: actual.canal,
+        cliente: datos.cliente,
+        material: datos.material,
+        gramos: datos.gramos,
+        urgente: datos.urgente,
+        importe: calcularImporte(datos)
+    };
+
+    presupuestos[indice] = actualizado;
+    return actualizado;
+}
+
+export function buscarPresupuesto(id: number): Presupuesto | undefined {
+    return presupuestos.find(a => a.id === id);
+}
