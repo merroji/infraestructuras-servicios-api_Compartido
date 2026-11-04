@@ -1,4 +1,7 @@
 import express from "express";
+import { crearPresupuesto, listarPresupuesto, eliminarPresupuesto } from "./services/presupuestos.service.js";
+import { presupuestos } from "./data/datos.js";
+
 const app = express();
 const PORT = 3000;
 
@@ -10,7 +13,12 @@ app.get("/", (req, res) => {
 
 // Listado, con filtros opcionales material y urgente.
 app.get("/api/presupuestos", (req, res) => {
+    const material = req.query.material as string | undefined;
+    const urgente = req.query.urgente as string | undefined;
 
+    const lista = listarPresupuesto(material, urgente);
+
+    res.status(200).json(lista);
 });
 
 // Resumen económico actualizado.
@@ -25,6 +33,11 @@ app.get("/api/presupuestos/:id", (req, res) => {
 
 // Nuevo presupuesto, 201 Created y cabecera Location.
 app.post("/api/presupuestos", (req, res) => {
+    const nuevoPresupuesto = crearPresupuesto(req.body)
+
+    res.status(201)
+        .location(`/api/presupuestos/${nuevoPresupuesto.id}`)
+        .json(nuevoPresupuesto);
 
 });
 
@@ -40,7 +53,14 @@ app.patch("/api/presupuestos/:id", (req, res) => {
 
 // 204 No Content o 404.
 app.delete("/api/presupuestos/:id", (req, res) => {
+    const id = Number(req.params.id);
 
+    const eliminado = eliminarPresupuesto(id)
+
+    if (eliminado === undefined) {
+        return res.status(404).json({ mensaje: "Presupuesto no ha sido encontrado" });
+    }
+    res.status(204).send()
 });
 
 app.listen(PORT, "0.0.0.0", () => {
