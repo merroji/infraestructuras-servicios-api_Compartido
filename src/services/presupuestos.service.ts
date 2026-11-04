@@ -1,7 +1,16 @@
 import { presupuestos, contador } from '../data/datos.js';
 import { Presupuesto, DatosParaPresupuesto, CambiosPresupuesto } from '../models/presupuesto.js';
 
-export function crearPresupuesto(datosPresupuesto: DatosParaPresupuesto): Presupuesto {
+// Tarifas (Reglas de negocio).
+export const PRECIO_POR_GRAMO: Record<string, number> = {
+    pla: 0.12,
+    resina: 0.25
+};
+export const GRAMOS_PARA_DESCUENTO = 500;
+export const DESCUENTO = 0.10;       // 10 % si gramos >= 500
+export const RECARGO_URGENTE = 0.20; // 20 % si es urgente
+
+export function crearPresupuesto(canal: string, datosPresupuesto: DatosParaPresupuesto): Presupuesto {
     
     const nuevoPresupuesto: Presupuesto = {
         id: contador.siguienteIdentificador++,
@@ -10,7 +19,7 @@ export function crearPresupuesto(datosPresupuesto: DatosParaPresupuesto): Presup
         gramos: datosPresupuesto.gramos,
         urgente: datosPresupuesto.urgente,
         importe: 0,
-        canal: ""
+        canal: canal
     }
 
     presupuestos.push(nuevoPresupuesto);
@@ -40,14 +49,6 @@ export function eliminarPresupuesto(id: number): Presupuesto | undefined{
         return undefined
     }
 
-    const presupuestoEliminado = presupuestos[presupuertoIndice]
-
-        for (let i = presupuertoIndice; i < presupuestos.length - 1; i++) {
-        presupuestos[i] = presupuestos[i + 1];
-    }
-
-    presupuestos.pop();
+    const [presupuestoEliminado] = presupuestos.splice(presupuertoIndice, 1)
     return presupuestoEliminado;
-
-
 }

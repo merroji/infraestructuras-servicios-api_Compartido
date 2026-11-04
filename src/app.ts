@@ -33,7 +33,8 @@ app.get("/api/presupuestos/:id", (req, res) => {
 
 // Nuevo presupuesto, 201 Created y cabecera Location.
 app.post("/api/presupuestos", (req, res) => {
-    const nuevoPresupuesto = crearPresupuesto(req.body)
+    const canal = req.get("X-Canal")?? "desconocido"
+    const nuevoPresupuesto = crearPresupuesto(canal, req.body)
 
     res.status(201)
         .location(`/api/presupuestos/${nuevoPresupuesto.id}`)
